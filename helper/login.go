@@ -1,4 +1,4 @@
-package main
+package helper
 
 import (
 	"fmt"
@@ -10,8 +10,8 @@ import (
 )
 
 type myRequest request.Request
-
-type user struct {
+type myRequestPtr *request.Request
+type leetCodeUser struct {
 	config userConfig
 }
 type userConfig struct {
@@ -24,23 +24,23 @@ func (u *userConfig) get() {
 	u.password = strings.Split(string(dat), "\n")[1]
 	u.password = strings.Split(u.password, "\"")[1]
 }
-func (u *user) init() {
+func (u *leetCodeUser) init() {
 	u.config.get()
 }
-func (u *user) login() *myRequest {
+func (u *leetCodeUser) login() myRequestPtr {
 	req := request.NewRequest(new(http.Client))
 	req.Headers = map[string]string{
 		"Accept-Encoding": "",
 		"Referer":         "https://leetcode.com/",
 	}
-
+	return myRequestPtr(req)
 }
 func (r *myRequest) getCSRFToken() string {
-	return nil
+	return ""
 }
 
-func main() {
-	var u user
+func LoginMain() {
+	var u leetCodeUser
 	u.init()
 	fmt.Println(u)
 }

@@ -4,5 +4,5 @@ import "./helper"
 
 func main() {
 	// helper.ListAllProblems()
-	helper.GetConfig()
+	helper.LoginMain()
 }
