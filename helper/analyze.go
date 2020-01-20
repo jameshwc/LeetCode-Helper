@@ -16,7 +16,7 @@ const (
 	Hard   = 2
 )
 
-type problem struct {
+type myproblem struct {
 	problemID, difficulty int
 	title, filename       string
 }
@@ -36,7 +36,7 @@ func getFiles() []string {
 	}
 	return files
 }
-func (p *problem) Init(filename string) {
+func (p *myproblem) Init(filename string) {
 	problemID, err := strconv.Atoi(strings.Split(filename, ".")[0])
 	if err != nil {
 		log.Fatal(err)
@@ -48,7 +48,7 @@ func (p *problem) Init(filename string) {
 func ListAllProblems() {
 	leetcodeInit()
 	files := getFiles()
-	var problems = make([]problem, len(files))
+	var problems = make([]myproblem, len(files))
 	for i := 0; i < len(files); i++ {
 		problems[i].Init(files[i])
 		fmt.Println(problems[i].problemID, problems[i].title)
