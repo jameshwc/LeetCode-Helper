@@ -1,8 +1,9 @@
 package main
 
-import "./helper"
+import (
+	"./helper"
+)
 
 func main() {
 	helper.SaveJSON()
-
 }

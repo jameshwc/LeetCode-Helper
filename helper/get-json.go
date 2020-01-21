@@ -4,10 +4,10 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
+	"strconv"
 
 	"github.com/BurntSushi/toml"
 )
@@ -31,6 +31,11 @@ type userConfig struct {
 	Session, Csrftoken string
 }
 type problem struct {
+	NO         string
+	Title      string
+	Acceptance float64
+	Difficulty string
+	Language   string
 }
 type rawProblem struct {
 	Stat struct {
@@ -45,6 +50,29 @@ type rawProblem struct {
 	}
 }
 
+func num2String(n int) string {
+	sn := strconv.Itoa(n)
+	switch {
+	case n < 10:
+		return "000" + sn
+	case n < 100:
+		return "00" + sn
+	case n < 1000:
+		return "0" + sn
+	}
+	return sn
+}
+func level2String(n int) string {
+	switch n {
+	case 1:
+		return "Easy"
+	case 2:
+		return "Medium"
+	case 3:
+		return "Hard"
+	}
+	return "Error"
+}
 func (u *leetCodeUser) init() {
 	if _, err := toml.DecodeFile("config.toml", u); err != nil {
 		log.Fatal(err)
@@ -75,29 +103,37 @@ func (u *leetCodeUser) saveJSON() ([]byte, error) {
 	rawproblemBytes := bytes.Split(bytes.Split(bodyBytes, []byte("["))[1], []byte("]"))[0]
 	problemBytes = append(problemBytes, rawproblemBytes...)
 	problemBytes = append(problemBytes, []byte("]")...)
-	err = ioutil.WriteFile("problems.json", problemBytes, 0644)
 	return problemBytes, nil
 }
 func (u *leetCodeUser) parseJSON(b []byte) {
 	json.Unmarshal(b, u)
 }
-
-func parseProblems(b []byte) {
-	problem := []rawProblem{}
-	json.Unmarshal(b, &problem)
-	for i := range problem {
-		if problem[i].Status == "ac" {
-			fmt.Println(problem[i].Stat.Title)
+func (u *leetCodeUser) parseProblems(b []byte) {
+	problems := []rawProblem{}
+	json.Unmarshal(b, &problems)
+	levelString := []string{"Easy", "Medium", "Hard"}
+	for i := len(problems) - 1; i >= 0; i-- {
+		if problems[i].Status == "ac" {
+			var p problem
+			p.Title = problems[i].Stat.Title
+			p.NO = num2String(problems[i].Stat.ID)
+			p.Difficulty = levelString[problems[i].Difficulty.Level-1]
+			p.Language = "Golang" // TODO: Analyze code folder
+			p.Acceptance = float64(problems[i].Stat.AC) / float64(problems[i].Stat.TotalSubmit) * 100
+			u.ACproblems = append(u.ACproblems, p)
 		}
 	}
 }
-func SaveJSON() {
+
+func SaveJSON() *leetCodeUser {
 	var u leetCodeUser
 	u.init()
 	data, err := u.saveJSON()
 	if err != nil {
 		log.Fatal(err)
 	}
-	parseProblems(data)
+	u.parseProblems(data)
+	u.makeReadMe()
+	return nil
 	// u.parseJSON(data)
 }

@@ -1,3 +1,5 @@
 config.toml
+README.md
 *.exe
 out
+*.json
