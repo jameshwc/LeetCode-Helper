@@ -7,19 +7,18 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	"strconv"
 
 	"github.com/BurntSushi/toml"
 )
 
 const (
-	loginURL  = "https://leetcode.com/accounts/login"
-	apiURL    = "https://leetcode.com/api/problems/algorithms/"
-	userAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.157 Safari/537.36"
+	apiURL = "https://leetcode.com/api/problems/algorithms/"
 )
 
 type leetCodeUser struct {
-	User       userConfig
+	Connection struct {
+		Session, Csrftoken string
+	}
 	Name       string `json:"user_name"`
 	AC         int    `json:"num_solved"`
 	ACeasy     int    `json:"ac_easy"`
@@ -27,11 +26,8 @@ type leetCodeUser struct {
 	AChard     int    `json:"ac_hard"`
 	ACproblems []problem
 }
-type userConfig struct {
-	Session, Csrftoken string
-}
 type problem struct {
-	NO         string
+	NO         int
 	Title      string
 	Acceptance float64
 	Difficulty string
@@ -43,36 +39,13 @@ type rawProblem struct {
 		Title       string `json:"question__title"`
 		AC          int    `json:"total_acs"`
 		TotalSubmit int    `json:"total_submitted"`
-	} `json:"stat"`
-	Status     string `json:"status"`
+	}
+	Status     string
 	Difficulty struct {
-		Level int `json:"level"`
+		Level int
 	}
 }
 
-func num2String(n int) string {
-	sn := strconv.Itoa(n)
-	switch {
-	case n < 10:
-		return "000" + sn
-	case n < 100:
-		return "00" + sn
-	case n < 1000:
-		return "0" + sn
-	}
-	return sn
-}
-func level2String(n int) string {
-	switch n {
-	case 1:
-		return "Easy"
-	case 2:
-		return "Medium"
-	case 3:
-		return "Hard"
-	}
-	return "Error"
-}
 func (u *leetCodeUser) init() {
 	if _, err := toml.DecodeFile("config.toml", u); err != nil {
 		log.Fatal(err)
@@ -83,8 +56,8 @@ func (u *leetCodeUser) saveJSON() ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	req.AddCookie(&http.Cookie{Name: "csrftoken", Value: u.User.Csrftoken})
-	req.AddCookie(&http.Cookie{Name: "LEETCODE_SESSION", Value: u.User.Session})
+	req.AddCookie(&http.Cookie{Name: "csrftoken", Value: u.Connection.Csrftoken})
+	req.AddCookie(&http.Cookie{Name: "LEETCODE_SESSION", Value: u.Connection.Session})
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
@@ -105,9 +78,6 @@ func (u *leetCodeUser) saveJSON() ([]byte, error) {
 	problemBytes = append(problemBytes, []byte("]")...)
 	return problemBytes, nil
 }
-func (u *leetCodeUser) parseJSON(b []byte) {
-	json.Unmarshal(b, u)
-}
 func (u *leetCodeUser) parseProblems(b []byte) {
 	problems := []rawProblem{}
 	json.Unmarshal(b, &problems)
@@ -116,7 +86,7 @@ func (u *leetCodeUser) parseProblems(b []byte) {
 		if problems[i].Status == "ac" {
 			var p problem
 			p.Title = problems[i].Stat.Title
-			p.NO = num2String(problems[i].Stat.ID)
+			p.NO = problems[i].Stat.ID
 			p.Difficulty = levelString[problems[i].Difficulty.Level-1]
 			p.Language = "Golang" // TODO: Analyze code folder
 			p.Acceptance = float64(problems[i].Stat.AC) / float64(problems[i].Stat.TotalSubmit) * 100
@@ -135,5 +105,4 @@ func SaveJSON() *leetCodeUser {
 	u.parseProblems(data)
 	u.makeReadMe()
 	return nil
-	// u.parseJSON(data)
 }

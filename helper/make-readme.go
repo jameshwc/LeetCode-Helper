@@ -8,7 +8,7 @@ import (
 
 const readmeFileName = "README.md"
 
-func (u *leetCodeUser) makeReadMe() error {
+func (u *leetCodeUser) makeReadMe() {
 	f, err := os.Create(readmeFileName)
 	if err != nil {
 		log.Fatal(err)
@@ -22,8 +22,7 @@ func (u *leetCodeUser) makeReadMe() error {
 	f.WriteString("|Problem No.|Title|Acceptance|Difficulty|Language|\n")
 	f.WriteString("|:-:|:-:|:-: | :-: | :-: |\n")
 	for i := range u.ACproblems {
-		s := fmt.Sprintf("|%s|%s|%.2f%%|%s|%s\n", u.ACproblems[i].NO, u.ACproblems[i].Title, u.ACproblems[i].Acceptance, u.ACproblems[i].Difficulty, u.ACproblems[i].Language)
+		s := fmt.Sprintf("|%.4d|%s|%.2f%%|%s|%s\n", u.ACproblems[i].NO, u.ACproblems[i].Title, u.ACproblems[i].Acceptance, u.ACproblems[i].Difficulty, u.ACproblems[i].Language)
 		f.WriteString(s)
 	}
-	return nil
 }
