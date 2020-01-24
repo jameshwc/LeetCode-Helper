@@ -5,5 +5,5 @@ import (
 )
 
 func main() {
-	helper.SaveJSON()
+	helper.Helper()
 }

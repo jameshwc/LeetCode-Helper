@@ -68,6 +68,7 @@ func (u *leetCodeUser) saveJSON() ([]byte, error) {
 		return nil, errors.New("request not successfully")
 	}
 	bodyBytes, _ := ioutil.ReadAll(resp.Body)
+	json.Unmarshal(bodyBytes, &u)
 	err = ioutil.WriteFile("leetcode.json", bodyBytes, 0644)
 	if err != nil {
 		return nil, err
@@ -93,16 +94,4 @@ func (u *leetCodeUser) parseProblems(b []byte) {
 			u.ACproblems = append(u.ACproblems, p)
 		}
 	}
-}
-
-func SaveJSON() *leetCodeUser {
-	var u leetCodeUser
-	u.init()
-	data, err := u.saveJSON()
-	if err != nil {
-		log.Fatal(err)
-	}
-	u.parseProblems(data)
-	u.makeReadMe()
-	return nil
 }

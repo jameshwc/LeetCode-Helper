@@ -8,7 +8,7 @@ import (
 
 const readmeFileName = "README.md"
 
-func (u *leetCodeUser) makeReadMe() {
+func makeReadMe(u leetCodeUser, t trendCSV) {
 	f, err := os.Create(readmeFileName)
 	if err != nil {
 		log.Fatal(err)
@@ -21,8 +21,14 @@ func (u *leetCodeUser) makeReadMe() {
 	f.WriteString("\n## Status\n\n")
 	f.WriteString("|Problem No.|Title|Acceptance|Difficulty|Language|\n")
 	f.WriteString("|:-:|:-:|:-: | :-: | :-: |\n")
-	for i := range u.ACproblems {
-		s := fmt.Sprintf("|%.4d|%s|%.2f%%|%s|%s\n", u.ACproblems[i].NO, u.ACproblems[i].Title, u.ACproblems[i].Acceptance, u.ACproblems[i].Difficulty, u.ACproblems[i].Language)
+	for _, val := range u.ACproblems {
+		s := fmt.Sprintf("|%.4d|%s|%.2f%%|%s|%s\n", val.NO, val.Title, val.Acceptance, val.Difficulty, val.Language)
+		f.WriteString(s)
+	}
+	f.WriteString("\n|Date|total|easy|medium|hard\n") // TODO: Support multi language
+	f.WriteString("|:-:|-:|-:|-:|-:|\n")
+	for _, val := range t.trends {
+		s := fmt.Sprintf("|%s|%2d|%2d|%2d|%2d\n", val.date, val.total, val.easy, val.medium, val.hard)
 		f.WriteString(s)
 	}
 }
