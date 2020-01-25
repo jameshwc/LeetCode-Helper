@@ -37,6 +37,7 @@ type rawProblem struct {
 	Stat struct {
 		ID          int    `json:"frontend_question_id"`
 		Title       string `json:"question__title"`
+		TitleSlug   string `json:"question__title_slug"`
 		AC          int    `json:"total_acs"`
 		TotalSubmit int    `json:"total_submitted"`
 	}
@@ -77,6 +78,10 @@ func (u *leetCodeUser) saveJSON() ([]byte, error) {
 	rawproblemBytes := bytes.Split(bytes.Split(bodyBytes, []byte("["))[1], []byte("]"))[0]
 	problemBytes = append(problemBytes, rawproblemBytes...)
 	problemBytes = append(problemBytes, []byte("]")...)
+	err = ioutil.WriteFile("problems.json", problemBytes, 0644)
+	if err != nil {
+		return nil, err
+	}
 	return problemBytes, nil
 }
 func (u *leetCodeUser) parseProblems(b []byte) {

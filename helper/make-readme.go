@@ -31,4 +31,5 @@ func makeReadMe(u leetCodeUser, t trendCSV) {
 		s := fmt.Sprintf("|%s|%2d|%2d|%2d|%2d\n", val.date, val.total, val.easy, val.medium, val.hard)
 		f.WriteString(s)
 	}
+	f.Sync()
 }
