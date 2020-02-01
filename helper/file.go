@@ -25,6 +25,8 @@ func MakeFolder(id int) {
 			os.Mkdir(idFolderPath, 0755)
 			file := filepath.Join(idFolderPath, problems[i].Stat.TitleSlug+".go")
 			os.Create(file)
+			tagfile := filepath.Join(idFolderPath, ".tag")
+			os.Create(tagfile)
 			break
 		}
 	}
