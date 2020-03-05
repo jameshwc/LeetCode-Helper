@@ -5,7 +5,7 @@ import (
 	"log"
 )
 
-func Helper() {
+func ReadMeHelper() {
 	var u leetCodeUser
 	var t trendCSV
 	u.init()

@@ -48,7 +48,18 @@ func (t *trendCSV) write(u leetCodeUser) bool {
 	if isModify {
 		csvfile.Seek(0, io.SeekEnd)
 		w := csv.NewWriter(csvfile)
+		if len(rows) < 1 {
+			w.Write([]string{"date", "total", "easy", "medium", "hard"})
+		}
 		wstr := []string{time.Now().Format("06/01/02"), strconv.Itoa(u.AC), strconv.Itoa(u.ACeasy), strconv.Itoa(u.ACmedium), strconv.Itoa(u.AChard)}
+		// TODO: refactor the following code, it has smell.
+		var tr trend
+		tr.date = time.Now().Format("06/01/02")
+		tr.easy = u.ACeasy
+		tr.medium = u.ACmedium
+		tr.hard = u.AChard
+		tr.total = u.AC
+		t.trends = append(t.trends, tr)
 		w.Write(wstr)
 		w.Flush()
 	}
