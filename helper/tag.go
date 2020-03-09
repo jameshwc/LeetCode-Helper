@@ -36,7 +36,7 @@ func parseTags() map[int]string {
 	return tags
 }
 
-func parseLanguage(tag string) []string {
+func parseLanguage(tag string) string {
 	var language []string
 	tags := strings.Split(tag, ",")
 	for t := range tags {
@@ -45,5 +45,5 @@ func parseLanguage(tag string) []string {
 			language = append(language, tags[t])
 		}
 	}
-	return language
+	return strings.Join(language, ",")
 }

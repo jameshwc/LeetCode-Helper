@@ -5,12 +5,16 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
-	"strings"
 )
 
 const readmeFileName = "README.md"
 
 func makeReadMe(u leetCodeUser, t trendCSV) {
+	fullLanguageName := map[string]string{
+		"js":     "javascript",
+		"go":     "golang",
+		"kotlin": "kotlin",
+	}
 	f, err := os.Create(readmeFileName)
 	if err != nil {
 		log.Fatal(err)
@@ -22,8 +26,12 @@ func makeReadMe(u leetCodeUser, t trendCSV) {
 	}
 	f.Write(sampleBytes)
 	for _, val := range u.ACproblems {
-		language := strings.Join(val.Language[:], ",")
-		s := fmt.Sprintf("|%.4d|%s|%.2f%%|%s|%s\n", val.NO, val.Title, val.Acceptance, val.Difficulty, language)
+		var s string
+		if u.Language != "all" {
+			s = fmt.Sprintf("|%.4d|%s|%.2f%%|%s|%s\n", val.NO, val.Title, val.Acceptance, val.Difficulty, fullLanguageName[u.Language])
+		} else {
+			s = fmt.Sprintf("|%.4d|%s|%.2f%%|%s|%s\n", val.NO, val.Title, val.Acceptance, val.Difficulty, val.Language)
+		}
 		f.WriteString(s)
 	}
 	f.WriteString("\n|Date|total|easy|medium|hard\n") // TODO: Support multi language

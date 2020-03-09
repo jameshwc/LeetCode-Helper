@@ -11,14 +11,8 @@ import (
 func main() {
 	argc := len(os.Args)
 	switch argc {
-	case 1:
-		helper.ReadMeHelper()
 	case 2:
-		id, err := strconv.Atoi(os.Args[1])
-		if err != nil {
-			log.Fatal("The parameter should be a number!")
-		}
-		helper.MakeFolder(id, "golang")
+		helper.ReadMeHelper(os.Args[1])
 	case 3:
 		id, err := strconv.Atoi(os.Args[1])
 		if err != nil {

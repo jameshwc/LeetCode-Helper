@@ -12,9 +12,9 @@ import (
 func MakeFolder(id int, language string) {
 	var problems []rawProblem
 	extension := map[string]string{
-		"golang":     ".go",
-		"kotlin":     ".kt",
-		"javascript": ".js",
+		"go":     ".go",
+		"kotlin": ".kt",
+		"js":     ".js",
 	}
 	dat, err := ioutil.ReadFile("problems.json")
 	if err != nil {

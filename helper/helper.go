@@ -15,13 +15,14 @@ type leetCodeUser struct {
 	ACmedium   int    `json:"ac_medium"`
 	AChard     int    `json:"ac_hard"`
 	ACproblems []problem
+	Language   string
 }
 type problem struct {
 	NO         int
 	Title      string
 	Acceptance float64
 	Difficulty string
-	Language   []string
+	Language   string
 	tags       []string
 }
 type rawProblem struct {
@@ -38,10 +39,11 @@ type rawProblem struct {
 	}
 }
 
-func ReadMeHelper() {
+func ReadMeHelper(lang string) {
 	var u leetCodeUser
 	var t trendCSV
 	u.init()
+	u.Language = lang
 	data, err := u.saveJSON()
 	if err != nil {
 		log.Fatal(err)

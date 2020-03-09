@@ -59,13 +59,18 @@ func (u *leetCodeUser) parseProblems(b []byte) {
 	levelString := []string{"Easy", "Medium", "Hard"}
 	tags := parseTags()
 	for i := len(problems) - 1; i >= 0; i-- {
-		if problems[i].Status == "ac" {
+		if problems[i].Status == "ac" &&
+			(u.Language == "all" || strings.Contains(tags[problems[i].Stat.ID], u.Language)) {
 			var p problem
 			p.Title = problems[i].Stat.Title
 			p.NO = problems[i].Stat.ID
 			p.Difficulty = levelString[problems[i].Difficulty.Level-1]
 			p.Acceptance = float64(problems[i].Stat.AC) / float64(problems[i].Stat.TotalSubmit) * 100
-			p.Language = parseLanguage(tags[p.NO])
+			if u.Language == "all" {
+				p.Language = parseLanguage(tags[p.NO])
+			} else {
+				p.Language = u.Language
+			}
 			p.tags = strings.Split(tags[p.NO], ",")
 			u.ACproblems = append(u.ACproblems, p)
 		}

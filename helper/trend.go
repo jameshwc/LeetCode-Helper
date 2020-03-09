@@ -2,14 +2,13 @@ package helper
 
 import (
 	"encoding/csv"
+	"fmt"
 	"io"
 	"log"
 	"os"
 	"strconv"
 	"time"
 )
-
-const trendFileName = "trend.csv"
 
 type trendCSV struct {
 	trends []trend
@@ -21,6 +20,12 @@ type trend struct {
 
 func (t *trendCSV) write(u leetCodeUser) bool {
 	var isModify = true
+	var trendFileName string
+	if u.Language != "all" {
+		trendFileName = fmt.Sprintf("%s-trend.csv", u.Language)
+	} else {
+		trendFileName = "trend.csv"
+	}
 	csvfile, err := os.OpenFile(trendFileName, os.O_APPEND|os.O_CREATE, 0666)
 	if err != nil {
 		log.Fatal("Couldn't open the trend csv file", err)
@@ -41,7 +46,7 @@ func (t *trendCSV) write(u leetCodeUser) bool {
 			tr.hard, _ = strconv.Atoi(row[4])
 			t.trends = append(t.trends, tr)
 		}
-		if t.trends[len(t.trends)-1].total >= u.AC {
+		if t.trends[len(t.trends)-1].total >= len(u.ACproblems) {
 			isModify = false
 		}
 	}
@@ -64,25 +69,14 @@ func (t *trendCSV) write(u leetCodeUser) bool {
 
 func parseProblems(tr *trend, ACproblems []problem) {
 	for p := range ACproblems {
-		if containLanguage(ACproblems[p].Language, "javascript") { // TODO: avoid hard-coding
-			switch ACproblems[p].Difficulty {
-			case "Easy":
-				tr.easy++
-			case "Medium":
-				tr.medium++
-			case "Hard":
-				tr.hard++
-			}
-			tr.total++
+		switch ACproblems[p].Difficulty {
+		case "Easy":
+			tr.easy++
+		case "Medium":
+			tr.medium++
+		case "Hard":
+			tr.hard++
 		}
+		tr.total++
 	}
-}
-
-func containLanguage(langs []string, lang string) bool {
-	for l := range langs {
-		if langs[l] == lang {
-			return true
-		}
-	}
-	return false
 }
