@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"strings"
 
 	"github.com/BurntSushi/toml"
 )
@@ -65,6 +66,7 @@ func (u *leetCodeUser) parseProblems(b []byte) {
 			p.Difficulty = levelString[problems[i].Difficulty.Level-1]
 			p.Acceptance = float64(problems[i].Stat.AC) / float64(problems[i].Stat.TotalSubmit) * 100
 			p.Language = parseLanguage(tags[p.NO])
+			p.tags = strings.Split(tags[p.NO], ",")
 			u.ACproblems = append(u.ACproblems, p)
 		}
 	}

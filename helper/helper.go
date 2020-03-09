@@ -22,6 +22,7 @@ type problem struct {
 	Acceptance float64
 	Difficulty string
 	Language   []string
+	tags       []string
 }
 type rawProblem struct {
 	Stat struct {

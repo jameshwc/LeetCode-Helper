@@ -51,17 +51,38 @@ func (t *trendCSV) write(u leetCodeUser) bool {
 		if len(rows) < 1 {
 			w.Write([]string{"date", "total", "easy", "medium", "hard"})
 		}
-		wstr := []string{time.Now().Format("06/01/02"), strconv.Itoa(u.AC), strconv.Itoa(u.ACeasy), strconv.Itoa(u.ACmedium), strconv.Itoa(u.AChard)}
-		// TODO: refactor the following code, it has smell.
 		var tr trend
 		tr.date = time.Now().Format("06/01/02")
-		tr.easy = u.ACeasy
-		tr.medium = u.ACmedium
-		tr.hard = u.AChard
-		tr.total = u.AC
+		parseProblems(&tr, u.ACproblems)
 		t.trends = append(t.trends, tr)
+		wstr := []string{tr.date, strconv.Itoa(tr.total), strconv.Itoa(tr.easy), strconv.Itoa(tr.medium), strconv.Itoa(tr.hard)}
 		w.Write(wstr)
 		w.Flush()
 	}
 	return isModify
+}
+
+func parseProblems(tr *trend, ACproblems []problem) {
+	for p := range ACproblems {
+		if containLanguage(ACproblems[p].Language, "javascript") { // TODO: avoid hard-coding
+			switch ACproblems[p].Difficulty {
+			case "Easy":
+				tr.easy++
+			case "Medium":
+				tr.medium++
+			case "Hard":
+				tr.hard++
+			}
+			tr.total++
+		}
+	}
+}
+
+func containLanguage(langs []string, lang string) bool {
+	for l := range langs {
+		if langs[l] == lang {
+			return true
+		}
+	}
+	return false
 }
