@@ -31,7 +31,7 @@ type problem struct {
 	Title      string
 	Acceptance float64
 	Difficulty string
-	Language   string
+	Language   []string
 }
 type rawProblem struct {
 	Stat struct {
@@ -88,14 +88,16 @@ func (u *leetCodeUser) parseProblems(b []byte) {
 	problems := []rawProblem{}
 	json.Unmarshal(b, &problems)
 	levelString := []string{"Easy", "Medium", "Hard"}
+	tags := parseTags()
 	for i := len(problems) - 1; i >= 0; i-- {
 		if problems[i].Status == "ac" {
 			var p problem
 			p.Title = problems[i].Stat.Title
 			p.NO = problems[i].Stat.ID
 			p.Difficulty = levelString[problems[i].Difficulty.Level-1]
-			p.Language = "Golang" // TODO: Analyze code folder
 			p.Acceptance = float64(problems[i].Stat.AC) / float64(problems[i].Stat.TotalSubmit) * 100
+			tag := tags[p.NO]
+			p.Language = parseLanguage(tag)
 			u.ACproblems = append(u.ACproblems, p)
 		}
 	}

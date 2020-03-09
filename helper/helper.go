@@ -19,3 +19,6 @@ func ReadMeHelper() {
 	}
 	makeReadMe(u, t)
 }
+func Test() {
+	fmt.Println(parseTags())
+}

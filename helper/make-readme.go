@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strings"
 )
 
 const readmeFileName = "README.md"
@@ -22,7 +23,8 @@ func makeReadMe(u leetCodeUser, t trendCSV) {
 	f.WriteString("|Problem No.|Title|Acceptance|Difficulty|Language|\n")
 	f.WriteString("|:-:|:-:|:-: | :-: | :-: |\n")
 	for _, val := range u.ACproblems {
-		s := fmt.Sprintf("|%.4d|%s|%.2f%%|%s|%s\n", val.NO, val.Title, val.Acceptance, val.Difficulty, val.Language)
+		language := strings.Join(val.Language[:], ",")
+		s := fmt.Sprintf("|%.4d|%s|%.2f%%|%s|%s\n", val.NO, val.Title, val.Acceptance, val.Difficulty, language)
 		f.WriteString(s)
 	}
 	f.WriteString("\n|Date|total|easy|medium|hard\n") // TODO: Support multi language
