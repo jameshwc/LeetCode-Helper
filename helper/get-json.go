@@ -15,38 +15,6 @@ const (
 	apiURL = "https://leetcode.com/api/problems/algorithms/"
 )
 
-type leetCodeUser struct {
-	Connection struct {
-		Session, Csrftoken string
-	}
-	Name       string `json:"user_name"`
-	AC         int    `json:"num_solved"`
-	ACeasy     int    `json:"ac_easy"`
-	ACmedium   int    `json:"ac_medium"`
-	AChard     int    `json:"ac_hard"`
-	ACproblems []problem
-}
-type problem struct {
-	NO         int
-	Title      string
-	Acceptance float64
-	Difficulty string
-	Language   []string
-}
-type rawProblem struct {
-	Stat struct {
-		ID          int    `json:"frontend_question_id"`
-		Title       string `json:"question__title"`
-		TitleSlug   string `json:"question__title_slug"`
-		AC          int    `json:"total_acs"`
-		TotalSubmit int    `json:"total_submitted"`
-	}
-	Status     string
-	Difficulty struct {
-		Level int
-	}
-}
-
 func (u *leetCodeUser) init() {
 	if _, err := toml.DecodeFile("config.toml", u); err != nil {
 		log.Fatal(err)
