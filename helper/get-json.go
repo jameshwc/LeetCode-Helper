@@ -96,8 +96,7 @@ func (u *leetCodeUser) parseProblems(b []byte) {
 			p.NO = problems[i].Stat.ID
 			p.Difficulty = levelString[problems[i].Difficulty.Level-1]
 			p.Acceptance = float64(problems[i].Stat.AC) / float64(problems[i].Stat.TotalSubmit) * 100
-			tag := tags[p.NO]
-			p.Language = parseLanguage(tag)
+			p.Language = parseLanguage(tags[p.NO])
 			u.ACproblems = append(u.ACproblems, p)
 		}
 	}

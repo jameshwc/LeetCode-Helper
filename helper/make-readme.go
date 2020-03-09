@@ -2,6 +2,7 @@ package helper
 
 import (
 	"fmt"
+	"io/ioutil"
 	"log"
 	"os"
 	"strings"
@@ -15,13 +16,11 @@ func makeReadMe(u leetCodeUser, t trendCSV) {
 		log.Fatal(err)
 	}
 	defer f.Close()
-	f.WriteString("LeetCode Ans\n")
-	f.WriteString("===\n")
-	f.WriteString("Currently only write in golang.\n")
-	f.WriteString("Will support python, java, etc. in the future.\n")
-	f.WriteString("\n## Status\n\n")
-	f.WriteString("|Problem No.|Title|Acceptance|Difficulty|Language|\n")
-	f.WriteString("|:-:|:-:|:-: | :-: | :-: |\n")
+	sampleBytes, err := ioutil.ReadFile("README.md.sample")
+	if err != nil {
+		log.Fatal("open README.md.sample error", err)
+	}
+	f.Write(sampleBytes)
 	for _, val := range u.ACproblems {
 		language := strings.Join(val.Language[:], ",")
 		s := fmt.Sprintf("|%.4d|%s|%.2f%%|%s|%s\n", val.NO, val.Title, val.Acceptance, val.Difficulty, language)
