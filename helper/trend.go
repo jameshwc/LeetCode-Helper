@@ -2,14 +2,13 @@ package helper
 
 import (
 	"encoding/csv"
+	"fmt"
 	"io"
 	"log"
 	"os"
 	"strconv"
 	"time"
 )
-
-const trendFileName = "trend.csv"
 
 type trendCSV struct {
 	trends []trend
@@ -21,6 +20,12 @@ type trend struct {
 
 func (t *trendCSV) write(u leetCodeUser) bool {
 	var isModify = true
+	var trendFileName string
+	if u.Language != "all" {
+		trendFileName = fmt.Sprintf("%s-trend.csv", u.Language)
+	} else {
+		trendFileName = "trend.csv"
+	}
 	csvfile, err := os.OpenFile(trendFileName, os.O_APPEND|os.O_CREATE, 0666)
 	if err != nil {
 		log.Fatal("Couldn't open the trend csv file", err)
@@ -41,7 +46,7 @@ func (t *trendCSV) write(u leetCodeUser) bool {
 			tr.hard, _ = strconv.Atoi(row[4])
 			t.trends = append(t.trends, tr)
 		}
-		if t.trends[len(t.trends)-1].total >= u.AC {
+		if t.trends[len(t.trends)-1].total >= len(u.ACproblems) {
 			isModify = false
 		}
 	}
@@ -51,17 +56,27 @@ func (t *trendCSV) write(u leetCodeUser) bool {
 		if len(rows) < 1 {
 			w.Write([]string{"date", "total", "easy", "medium", "hard"})
 		}
-		wstr := []string{time.Now().Format("06/01/02"), strconv.Itoa(u.AC), strconv.Itoa(u.ACeasy), strconv.Itoa(u.ACmedium), strconv.Itoa(u.AChard)}
-		// TODO: refactor the following code, it has smell.
 		var tr trend
 		tr.date = time.Now().Format("06/01/02")
-		tr.easy = u.ACeasy
-		tr.medium = u.ACmedium
-		tr.hard = u.AChard
-		tr.total = u.AC
+		parseProblems(&tr, u.ACproblems)
 		t.trends = append(t.trends, tr)
+		wstr := []string{tr.date, strconv.Itoa(tr.total), strconv.Itoa(tr.easy), strconv.Itoa(tr.medium), strconv.Itoa(tr.hard)}
 		w.Write(wstr)
 		w.Flush()
 	}
 	return isModify
+}
+
+func parseProblems(tr *trend, ACproblems []problem) {
+	for p := range ACproblems {
+		switch ACproblems[p].Difficulty {
+		case "Easy":
+			tr.easy++
+		case "Medium":
+			tr.medium++
+		case "Hard":
+			tr.hard++
+		}
+		tr.total++
+	}
 }

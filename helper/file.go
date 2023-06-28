@@ -9,8 +9,13 @@ import (
 	"path/filepath"
 )
 
-func MakeFolder(id int) {
+func MakeFolder(id int, language string) {
 	var problems []rawProblem
+	extension := map[string]string{
+		"go":     ".go",
+		"kotlin": ".kt",
+		"js":     ".js",
+	}
 	dat, err := ioutil.ReadFile("problems.json")
 	if err != nil {
 		log.Fatal("Error when reading leetcode.json", err)
@@ -23,10 +28,12 @@ func MakeFolder(id int) {
 			folderName := fmt.Sprintf("%.4d.%s", id, problems[i].Stat.TitleSlug)
 			idFolderPath := filepath.Join(algoPath, folderName)
 			os.Mkdir(idFolderPath, 0755)
-			file := filepath.Join(idFolderPath, problems[i].Stat.TitleSlug+".go")
+			file := filepath.Join(idFolderPath, problems[i].Stat.TitleSlug+extension[language])
 			os.Create(file)
 			tagfile := filepath.Join(idFolderPath, ".tag")
-			os.Create(tagfile)
+			if _, err := os.Stat(tagfile); err != nil {
+				os.Create(tagfile)
+			}
 			break
 		}
 	}

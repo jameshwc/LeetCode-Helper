@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"strings"
 
 	"github.com/BurntSushi/toml"
 )
@@ -14,38 +15,6 @@ import (
 const (
 	apiURL = "https://leetcode.com/api/problems/algorithms/"
 )
-
-type leetCodeUser struct {
-	Connection struct {
-		Session, Csrftoken string
-	}
-	Name       string `json:"user_name"`
-	AC         int    `json:"num_solved"`
-	ACeasy     int    `json:"ac_easy"`
-	ACmedium   int    `json:"ac_medium"`
-	AChard     int    `json:"ac_hard"`
-	ACproblems []problem
-}
-type problem struct {
-	NO         int
-	Title      string
-	Acceptance float64
-	Difficulty string
-	Language   string
-}
-type rawProblem struct {
-	Stat struct {
-		ID          int    `json:"frontend_question_id"`
-		Title       string `json:"question__title"`
-		TitleSlug   string `json:"question__title_slug"`
-		AC          int    `json:"total_acs"`
-		TotalSubmit int    `json:"total_submitted"`
-	}
-	Status     string
-	Difficulty struct {
-		Level int
-	}
-}
 
 func (u *leetCodeUser) init() {
 	if _, err := toml.DecodeFile("config.toml", u); err != nil {
@@ -88,14 +57,21 @@ func (u *leetCodeUser) parseProblems(b []byte) {
 	problems := []rawProblem{}
 	json.Unmarshal(b, &problems)
 	levelString := []string{"Easy", "Medium", "Hard"}
+	tags := parseTags()
 	for i := len(problems) - 1; i >= 0; i-- {
-		if problems[i].Status == "ac" {
+		if problems[i].Status == "ac" &&
+			(u.Language == "all" || strings.Contains(tags[problems[i].Stat.ID], u.Language)) {
 			var p problem
 			p.Title = problems[i].Stat.Title
 			p.NO = problems[i].Stat.ID
 			p.Difficulty = levelString[problems[i].Difficulty.Level-1]
-			p.Language = "Golang" // TODO: Analyze code folder
 			p.Acceptance = float64(problems[i].Stat.AC) / float64(problems[i].Stat.TotalSubmit) * 100
+			if u.Language == "all" {
+				p.Language = parseLanguage(tags[p.NO])
+			} else {
+				p.Language = u.Language
+			}
+			p.tags = strings.Split(tags[p.NO], ",")
 			u.ACproblems = append(u.ACproblems, p)
 		}
 	}
